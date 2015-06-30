@@ -475,6 +475,7 @@ public class BaseNode {
              */
             setTargetDs(disk.getTargetDs());
          } else {
+            /*
             Disk tmDisk = new Disk();
             tmDisk.name = disk.getName();
             tmDisk.initialSizeMB = disk.getSize() * 1024;
@@ -499,7 +500,7 @@ public class BaseNode {
             }
             tmDisk.allocationType = AllocationType.valueOf(disk.getAllocType());
             tmDisk.type = disk.getDiskType().getType();
-            tmDisks.add(tmDisk);
+            tmDisks.add(tmDisk);*/
          }
       }
 

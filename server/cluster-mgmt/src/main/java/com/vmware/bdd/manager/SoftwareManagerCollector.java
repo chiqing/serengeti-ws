@@ -263,27 +263,7 @@ public class SoftwareManagerCollector implements InitializingBean {
     * @param softwareManager
     */
    private void validateSoftwareManager(String name, final SoftwareManager softwareManager) {
-      logger.info("Check echo() of application manager.");
-      // validate instance is reachable
-      try {
-         if ( !softwareManager.echo() ) {
-            logger.error("Application manager "
-                  + name
-                  + " status is unhealthy. Please check application manager console for more details.");
-            throw SoftwareManagerCollectorException.ECHO_FAILURE(name);
-         }
-      } catch (SoftwareManagementPluginException e) {
-         //TODO we won't catch anything here! consider to remove it, lixl
-         logger.error("Cannot connect to application manager "
-               + name + ", check the connection information.", e);
-         throw SoftwareManagerCollectorException.CONNECT_FAILURE(name,
-               e.getMessage());
-      }
-      validateSoftwareManagerVersion(softwareManager);
-   }
-
-   private void validateSoftwareManagerVersion(SoftwareManager softwareManager) throws SoftwareManagerCollectorException {
-      softwareManager.validateServerVersion();
+      
    }
 
    /**

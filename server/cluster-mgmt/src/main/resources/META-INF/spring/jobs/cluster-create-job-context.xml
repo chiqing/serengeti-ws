@@ -84,74 +84,18 @@
 				<listener ref="stepListener" />
 			</listeners>
 		</step>
-		<step id="nodeStatusVerifyStep" next="setPasswordForCreateNodesStep">
+		<step id="nodeStatusVerifyStep" next="softwareCreateClusterStep">
 			<tasklet ref="clusterNodeStatusVerifyTasklet" />
 			<listeners>
 				<listener ref="stepListener" />
 			</listeners>
 		</step>
-		<step id="setPasswordForCreateNodesStep" next="postSetPasswordForCreateNodesStep">
-			<tasklet ref="setPasswordForClusterCreateTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="postSetPasswordForCreateNodesStep" next="generateHostnameWhenClusterCreateStep">
-			<tasklet ref="postSetPasswordTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="generateHostnameWhenClusterCreateStep" next="generateHostnameFailedWhenClusterCreateStep">
-			<tasklet ref="generateHostnameWhenClusterCreateTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="generateHostnameFailedWhenClusterCreateStep" next="configLocalRepoStep">
-			<tasklet ref="generateHostnameFailedWhenClusterCreateTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="configLocalRepoStep" next="configLdapUserMgmtCreateStep">
-			<tasklet ref="configLocalRepoForClusterCreateTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="configLdapUserMgmtCreateStep" next="preSoftwareProvisionWhenCreateStep">
-			<tasklet ref="EnableLdapForNewNodesForCreateStep" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="preSoftwareProvisionWhenCreateStep" next="softwareCreateClusterStep">
-			<tasklet ref="preSoftwareProvisionWhenCreateTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="softwareCreateClusterStep" next="setAutoElasticityStep">
+		<step id="softwareCreateClusterStep">
 			<tasklet ref="softwareCreateClusterTasklet" />
 			<listeners>
 				<listener ref="stepListener" />
 			</listeners>
 		</step>
-		<step id="setAutoElasticityStep" next="postSoftwareProvisionWhenCreateStep">
-			<tasklet ref="setAutoElasticityTaskletRefreshAllNodes" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="postSoftwareProvisionWhenCreateStep">
-			<tasklet ref="postSoftwareProvisionWhenCreateTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<!-- <step id="cmCreateClusterStep"> <tasklet ref="cmCreateClusterTasklet" 
-			/> <listeners> <listener ref="stepListener" /> </listeners> </step> -->
 		<listeners>
 			<listener ref="createClusterJobListener" />
 		</listeners>

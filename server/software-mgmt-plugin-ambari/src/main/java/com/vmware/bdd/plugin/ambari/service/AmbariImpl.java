@@ -16,6 +16,13 @@ package com.vmware.bdd.plugin.ambari.service;
 
 import javax.ws.rs.NotFoundException;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,11 +34,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.vmware.bdd.exception.BddException;
 import com.vmware.bdd.exception.SoftwareManagerCollectorException;
-
 import com.vmware.bdd.plugin.ambari.api.manager.ApiManager_1_7_0;
 import com.vmware.bdd.plugin.ambari.api.manager.ApiManager_2_0_0;
 import com.vmware.bdd.plugin.ambari.utils.AmUtils;
+
 import org.apache.log4j.Logger;
 
 import javax.ws.rs.NotFoundException;
@@ -82,6 +90,7 @@ import com.vmware.bdd.plugin.ambari.poller.HostBootstrapPoller;
 import com.vmware.bdd.plugin.ambari.spectypes.HadoopRole;
 import com.vmware.bdd.plugin.ambari.utils.AmUtils;
 import com.vmware.bdd.plugin.ambari.utils.Constants;
+import com.vmware.bdd.plugin.ambari.utils.ShellCommandExecutor;
 import com.vmware.bdd.software.mgmt.plugin.exception.SoftwareManagementPluginException;
 import com.vmware.bdd.software.mgmt.plugin.exception.ValidationException;
 import com.vmware.bdd.software.mgmt.plugin.intf.SoftwareManager;
@@ -110,6 +119,9 @@ public class AmbariImpl implements SoftwareManager {
    private String privateKey;
 
    private ApiManager apiManager;
+
+   private String inventoryFilePath = "/opt/serengeti/etc/kubernetes-ansible/inventory";
+   private String setupFilePath = "/opt/serengeti/etc/kubernetes-ansible/setup.yml";
 
    private enum ProgressSplit {
       BOOTSTRAP_HOSTS(10),
@@ -289,14 +301,13 @@ public class AmbariImpl implements SoftwareManager {
          logger.info("Blueprint:");
          logger.info(ApiUtils.objectToJson(blueprint));
          logger.info("Start cluster " + blueprint.getName() + " creation.");
-
+         
          String ambariServerVersion = getVersion();
          clusterDef = new AmClusterDef(blueprint, privateKey, ambariServerVersion);
-         logger.info("Cluster def after modification: " + ApiUtils.objectToJson(clusterDef));
 
-         ReflectionUtils.getPreStartServicesHook().preStartServices(clusterDef.getName());
-
-         provisionCluster(clusterDef, reportQueue);
+         generateInventory(blueprint);
+         ansiblePlay();
+         
          success = true;
 
          // All nodes use cluster message after cluster provision successfully.
@@ -324,6 +335,43 @@ public class AmbariImpl implements SoftwareManager {
          reportStatus(clusterDef.getCurrentReport(), reportQueue);
       }
       return success;
+   }
+   
+   public void generateInventory(ClusterBlueprint blueprint) {
+      String inventoryContent = "";
+      inventoryContent += "[all:vars]\n";
+      inventoryContent += "ansible_ssh_user=root\n";
+      inventoryContent += "ansible_ssh_pass=password\n";
+      for (NodeGroupInfo nodeGroup : blueprint.getNodeGroups()) {
+         inventoryContent += "[" + nodeGroup.getRoles().get(0) + "]\n";
+         for (NodeInfo node : nodeGroup.getNodes()) {
+            inventoryContent += node.getMgtIpAddress() + "\n";
+         }
+         inventoryContent += "\n";
+      }
+      
+      File file = new File(inventoryFilePath);
+      BufferedWriter out = null;
+      try {
+         out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+         out.write(inventoryContent);
+      } catch (IOException ex) {
+         logger.error(ex.getMessage() + "\n failed to write file " + file);
+         throw BddException.INTERNAL(ex, "Failed to write inventory.");
+      } finally {
+         if (out != null) {
+            try {
+               out.close();
+            } catch (IOException e) {
+               logger.error("falied to close writer" + out, e);
+            }
+         }
+      }
+   }
+   
+   public void ansiblePlay() {
+      String ansiblePlaybookCmd = "/usr/local/bin/ansible-playbook -i " + inventoryFilePath + " " + setupFilePath;
+      ShellCommandExecutor.execCmd(ansiblePlaybookCmd, null, null, 600, "Running command ansible-playbook");
    }
 
    @Override
@@ -1599,9 +1647,7 @@ public class AmbariImpl implements SoftwareManager {
    @Override
    public boolean validateBlueprint(ClusterBlueprint blueprint)
          throws ValidationException {
-      AmClusterValidator amClusterValidator = new AmClusterValidator();
-      amClusterValidator.setApiManager(apiManager);
-      return validateBlueprint(amClusterValidator, blueprint);
+      return true;
    }
 
    protected boolean validateBlueprint(AmClusterValidator amClusterValidator, ClusterBlueprint blueprint)

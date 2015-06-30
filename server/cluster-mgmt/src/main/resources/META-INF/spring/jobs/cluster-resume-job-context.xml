@@ -102,68 +102,14 @@
 				<listener ref="stepListener" />
 			</listeners>
 		</step>
-		<step id="nodeStatusVerifyStep2" next="setPasswordForAllNodesStep">
+		<step id="nodeStatusVerifyStep2" next="softwareResumeClusterStep">
 			<tasklet ref="clusterNodeStatusVerifyTasklet" />
 			<listeners>
 				<listener ref="stepListener" />
 			</listeners>
 		</step>
-		<step id="setPasswordForAllNodesStep" next="postSetPasswordForAllNodesStep">
-			<tasklet ref="setPasswordForClusterResumeTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="postSetPasswordForAllNodesStep" next="generateHostnameWhenClusterResumeStep">
-			<tasklet ref="postSetPasswordTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="generateHostnameWhenClusterResumeStep" next="generateHostnameFailedWhenClusterResumeStep">
-			<tasklet ref="generateHostnameWhenClusterResumeTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="generateHostnameFailedWhenClusterResumeStep" next="configLocalRepoResumeStep">
-			<tasklet ref="generateHostnameFailedWhenClusterResumeTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="configLocalRepoResumeStep" next="configLdapUserMgmtResumeStep">
-			<tasklet ref="configLocalRepoForClusterResumeTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="configLdapUserMgmtResumeStep" next="preSoftwareProvisionWhenResumeStep">
-			<tasklet ref="EnableLdapForNewNodesResumeStep" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="preSoftwareProvisionWhenResumeStep" next="softwareResumeClusterStep">
-			<tasklet ref="preSoftwareProvisionWhenResumeTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="softwareResumeClusterStep" next="setAutoElasticityResumeStep">
+		<step id="softwareResumeClusterStep">
 			<tasklet ref="softwareCreateClusterTasklet" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="setAutoElasticityResumeStep" next="postSoftwareProvisionWhenResumeStep">
-			<tasklet ref="setAutoElasticityTaskletRefreshAllNodes" />
-			<listeners>
-				<listener ref="stepListener" />
-			</listeners>
-		</step>
-		<step id="postSoftwareProvisionWhenResumeStep">
-			<tasklet ref="postSoftwareProvisionWhenResumeTasklet" />
 			<listeners>
 				<listener ref="stepListener" />
 			</listeners>
