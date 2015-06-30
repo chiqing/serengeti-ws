@@ -51,6 +51,7 @@ import com.vmware.bdd.apitypes.ClusterRead;
 import com.vmware.bdd.apitypes.ClusterStatus;
 import com.vmware.bdd.apitypes.ClusterType;
 import com.vmware.bdd.apitypes.LimitInstruction;
+import com.vmware.bdd.apitypes.NodeCreate;
 import com.vmware.bdd.apitypes.NodeGroupCreate;
 import com.vmware.bdd.apitypes.NodeGroupRead;
 import com.vmware.bdd.apitypes.NodeRead;
@@ -1536,5 +1537,21 @@ public class ClusterManager {
          }
       }
       return type;
+   }
+
+   @ClusterManagerPointcut
+   public Long addNodeInSameHost(NodeCreate nodeSpec) throws Exception {
+      NodeEntity minionNode = clusterEntityMgr.findNodeByIpAddress(nodeSpec.getMinionIp());
+      if (minionNode == null) {
+         logger.error("minion node " + nodeSpec.getMinionIp() + " is not found.");
+         throw BddException.NOT_FOUND("Node", nodeSpec.getMinionIp());
+      }
+      return resizeCluster(minionNode.getNodeGroup().getCluster().getName(), minionNode.getNodeGroup().getName(),
+            minionNode.getNodeGroup().getDefineInstanceNum() + 1);
+   }
+
+   public NodeRead getNodeByName(String nodeName) {
+      NodeEntity nodeEntity = clusterEntityMgr.getNodeByVmName(nodeName);
+      return nodeEntity.toNodeRead(false);
    }
 }

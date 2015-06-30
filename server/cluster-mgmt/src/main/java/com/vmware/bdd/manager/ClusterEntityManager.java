@@ -228,6 +228,10 @@ public class ClusterEntityManager implements IClusterEntityManager, Observer {
       return new ArrayList<NodeEntity>(nodeGroup.getNodes());
    }
 
+   public NodeEntity findNodeByIpAddress(String ipAddress) {
+      return clusterDao.findByNodeIp(ipAddress);
+   }
+
    @Transactional
    @RetryTransaction
    public void insert(ClusterEntity cluster) {

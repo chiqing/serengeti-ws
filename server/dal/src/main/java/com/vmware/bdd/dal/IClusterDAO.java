@@ -49,4 +49,6 @@ public interface IClusterDAO extends IBaseDAO<ClusterEntity> {
    void updateLastStatus(String clusterName, ClusterStatus status);
 
    String findInfraConfig(String clusterName);
+
+   NodeEntity findByNodeIp(String ipAddress);
 }

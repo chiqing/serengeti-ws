@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.vmware.bdd.apitypes.ClusterStatus;
 import com.vmware.bdd.dal.IClusterDAO;
 import com.vmware.bdd.entity.ClusterEntity;
+import com.vmware.bdd.entity.NicEntity;
 import com.vmware.bdd.entity.NodeEntity;
 import com.vmware.bdd.entity.NodeGroupEntity;
 import com.vmware.bdd.entity.VcResourcePoolEntity;
@@ -139,6 +140,27 @@ public class ClusterDAO extends BaseDAO<ClusterEntity> implements IClusterDAO {
       ClusterEntity cluster = findByName(clusterName);
       AuAssert.check(cluster != null);
       cluster.setLastStatus(status);
+   }
+
+   @Override
+   @Transactional
+   public NodeEntity findByNodeIp(String ipAddress) {
+      ipAddress = ipAddress.trim();
+      List<ClusterEntity> clusters = findAll();
+      for (ClusterEntity cluster : clusters) {
+         for (NodeGroupEntity group : cluster.getNodeGroups()) {
+            List<NodeEntity> nodes = group.getNodes();
+            for (NodeEntity node : nodes) {
+               Set<NicEntity> nics = node.getNics();
+               for (NicEntity nic : nics) {
+                  if (ipAddress.endsWith(nic.getIpv4Address())) {
+                     return node;
+                  }
+               }
+            }
+         }
+      }
+      return null;
    }
 
    @Override

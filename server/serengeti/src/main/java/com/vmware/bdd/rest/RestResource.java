@@ -22,8 +22,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.vmware.bdd.aop.annotation.RestCallPointcut;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -42,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.vmware.bdd.aop.annotation.RestCallPointcut;
 import com.vmware.bdd.apitypes.AppManagerAdd;
 import com.vmware.bdd.apitypes.AppManagerRead;
 import com.vmware.bdd.apitypes.BddErrorMessage;
@@ -54,6 +53,8 @@ import com.vmware.bdd.apitypes.ElasticityRequestBody;
 import com.vmware.bdd.apitypes.FixDiskRequestBody;
 import com.vmware.bdd.apitypes.NetworkAdd;
 import com.vmware.bdd.apitypes.NetworkRead;
+import com.vmware.bdd.apitypes.NodeCreate;
+import com.vmware.bdd.apitypes.NodeRead;
 import com.vmware.bdd.apitypes.RackInfo;
 import com.vmware.bdd.apitypes.RackInfoList;
 import com.vmware.bdd.apitypes.ResourcePoolAdd;
@@ -1210,6 +1211,45 @@ public class RestResource {
       }
       result.setValidated(validated);
       return result;
+   }
+
+   // Node API
+   /**
+    * Create a node
+    * @param createSpec create specification
+    * @param request
+    * @return Return a response with Accepted status and put task uri in the Location of header that can be used to monitor the progress
+    */
+   @RequestMapping(value = "/nodes", method = RequestMethod.POST, consumes = "application/json")
+   @ResponseStatus(HttpStatus.ACCEPTED)
+   public void addNode(@RequestBody NodeCreate nodeSpec,
+         HttpServletRequest request, HttpServletResponse response)
+         throws Exception {
+      verifyInitialized();
+      String minionIp = nodeSpec.getMinionIp();
+      boolean valid = IpAddressUtil.isValidIp(minionIp);
+      if (!valid) {
+         throw BddException.INVALID_PARAMETER("minion ip address", minionIp);
+      }
+
+      long jobExecutionId = clusterMgr.addNodeInSameHost(nodeSpec);
+      redirectRequest(jobExecutionId, request, response);
+   }
+
+   /**
+    * Retrieve a node information by its name
+    * @param nodeName
+    * @param details not used by this version
+    * @return The node information
+    */
+   @RequestMapping(value = "/node/{nodeName}", method = RequestMethod.GET, produces = "application/json")
+   @ResponseBody
+   public NodeRead getNode(
+         @PathVariable("nodeName") String nodeName) {
+      if (CommonUtil.isBlank(nodeName)) {
+         throw BddException.INVALID_PARAMETER("node name", nodeName);
+      }
+      return clusterMgr.getNodeByName(nodeName);
    }
 
    @ExceptionHandler(Throwable.class)
