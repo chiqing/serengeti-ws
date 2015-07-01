@@ -19,6 +19,7 @@ import java.util.Map;
 
 import com.vmware.bdd.apitypes.ClusterRead;
 import com.vmware.bdd.apitypes.ClusterStatus;
+import com.vmware.bdd.apitypes.NodeRead;
 import com.vmware.bdd.dal.IServerInfoDAO;
 import com.vmware.bdd.entity.ClusterEntity;
 import com.vmware.bdd.entity.DiskEntity;
@@ -148,4 +149,6 @@ public interface IClusterEntityManager {
    public Map<String, String> findUserMgmtCfg(String clusterName);
 
    public NodeEntity findNodeByIpAddress(String ipAddress);
+
+   public NodeRead getNodeReadByVmName(String vmName);
 }

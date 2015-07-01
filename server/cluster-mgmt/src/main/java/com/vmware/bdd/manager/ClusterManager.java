@@ -1551,7 +1551,6 @@ public class ClusterManager {
    }
 
    public NodeRead getNodeByName(String nodeName) {
-      NodeEntity nodeEntity = clusterEntityMgr.getNodeByVmName(nodeName);
-      return nodeEntity.toNodeRead(false);
+      return clusterEntityMgr.getNodeReadByVmName(nodeName);
    }
 }

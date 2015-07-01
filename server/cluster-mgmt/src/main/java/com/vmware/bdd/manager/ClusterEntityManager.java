@@ -39,6 +39,7 @@ import com.vmware.bdd.aop.annotation.RetryTransaction;
 import com.vmware.bdd.apitypes.ClusterRead;
 import com.vmware.bdd.apitypes.ClusterStatus;
 import com.vmware.bdd.apitypes.NodeGroupRead;
+import com.vmware.bdd.apitypes.NodeRead;
 import com.vmware.bdd.apitypes.NodeStatus;
 import com.vmware.bdd.apitypes.ResourcePoolRead;
 import com.vmware.bdd.dal.IClusterDAO;
@@ -966,4 +967,8 @@ public class ClusterEntityManager implements IClusterEntityManager, Observer {
       // TODO
    }
 
+   public NodeRead getNodeReadByVmName(String vmName) {
+      NodeEntity nodeEntity = getNodeByVmName(vmName);
+      return nodeEntity.toNodeRead(false);
+   }
 }
