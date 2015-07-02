@@ -133,6 +133,7 @@ public class ForkChildVmSp implements Callable<Void> {
       vcChildVm.powerOn(vmForkSpec.getTargetHost());
 
       callback = vmForkSpec.getPostPowerOn();
+      logger.info("post power on: " + callback);
       if (callback != null) {
          callback.setVm(vcChildVm);
          callback.call();

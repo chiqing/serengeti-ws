@@ -28,6 +28,7 @@ import com.vmware.aurora.vc.VcDatastore;
 import com.vmware.aurora.vc.VcHost;
 import com.vmware.bdd.apitypes.ClusterCreate;
 import com.vmware.bdd.apitypes.NetworkAdd;
+import com.vmware.bdd.apitypes.NodeGroupCreate;
 import com.vmware.bdd.entity.NodeEntity;
 import com.vmware.bdd.exception.BddException;
 import com.vmware.bdd.manager.ClusterConfigManager;
@@ -68,8 +69,7 @@ public class AddFlexibleNodePlanStep extends TrackableTasklet {
       ClusterCreate clusterSpec = configMgr.getClusterConfig(clusterName);
 
       String vmName = getVmName(clusterName, nodeGroupName);
-      BaseNode node = new BaseNode();
-      node.setVmName(vmName);
+      BaseNode node = new BaseNode(vmName, clusterSpec.getNodeGroup(nodeGroupName), clusterSpec);
       VmSchema createSchema =
             VcVmUtil.getVmSchema(clusterSpec, nodeGroupName, new ArrayList<DiskSpec>(),
                   clusteringService.getTemplateVmId(),
