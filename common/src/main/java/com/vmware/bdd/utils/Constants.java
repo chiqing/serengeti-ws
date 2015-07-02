@@ -290,4 +290,5 @@ public class Constants {
    public static final String SUDO_COMMAND = "serengeti.sudo.command";
    public static final String DEFAULT_SUDO_COMMAND = "sudo";
    public static final String SYSTEM_AND_SWAP_DISK_CONTROLLER_TYPE = "storage.system_swap.disk.controller.type";
+   public static final String FLEXIBLE_GROUP_NAME = "pod";
 }

@@ -14,6 +14,7 @@
  ***************************************************************************/
 package com.vmware.bdd.service.job;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Set;
 import com.vmware.bdd.entity.NetworkEntity;
 import com.vmware.bdd.entity.NicEntity;
 import com.vmware.bdd.spectypes.NicSpec;
+
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -155,9 +157,16 @@ public class ClusterUpdateDataStep extends TrackableTasklet {
                      JobConstants.GROUP_INSTANCE_OLD_NUMBER_JOB_PARAM);
       }
       if (created != null && created) {
-         boolean success =
-               JobUtils.VerifyClusterNodes(clusterName, verifyScope, groupName,
-                     oldInstanceNum, getClusterEntityMgr());
+         boolean success = false;
+         oldInstanceNum =
+               getJobParameters(chunkContext).getLong(
+                     JobConstants.GROUP_INSTANCE_OLD_NUMBER_JOB_PARAM);
+         String verifyVmName =
+               getJobParameters(chunkContext).getString(
+                     JobConstants.VERIFY_VM_NAME_JOB_PARAM);
+         success = JobUtils.VerifyClusterNodes(clusterName, verifyScope, groupName,
+               oldInstanceNum, verifyVmName, getClusterEntityMgr());
+
          putIntoJobExecutionContext(chunkContext,
                JobConstants.VERIFY_NODE_STATUS_RESULT_PARAM, success);
       }

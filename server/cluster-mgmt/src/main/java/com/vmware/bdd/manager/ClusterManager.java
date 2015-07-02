@@ -52,6 +52,7 @@ import com.vmware.bdd.apitypes.ClusterStatus;
 import com.vmware.bdd.apitypes.ClusterType;
 import com.vmware.bdd.apitypes.LimitInstruction;
 import com.vmware.bdd.apitypes.NodeCreate;
+import com.vmware.bdd.apitypes.NodeDelete;
 import com.vmware.bdd.apitypes.NodeGroupCreate;
 import com.vmware.bdd.apitypes.NodeGroupRead;
 import com.vmware.bdd.apitypes.NodeRead;
@@ -69,6 +70,7 @@ import com.vmware.bdd.exception.ClusterHealServiceException;
 import com.vmware.bdd.exception.ClusterManagerException;
 import com.vmware.bdd.exception.VcProviderException;
 import com.vmware.bdd.manager.intf.IClusterEntityManager;
+import com.vmware.bdd.placement.entity.BaseNode;
 import com.vmware.bdd.service.IClusterHealService;
 import com.vmware.bdd.service.IClusteringService;
 import com.vmware.bdd.service.IExecutionService;
@@ -1546,11 +1548,67 @@ public class ClusterManager {
          logger.error("minion node " + nodeSpec.getMinionIp() + " is not found.");
          throw BddException.NOT_FOUND("Node", nodeSpec.getMinionIp());
       }
-      return resizeCluster(minionNode.getNodeGroup().getCluster().getName(), minionNode.getNodeGroup().getName(),
-            minionNode.getNodeGroup().getDefineInstanceNum() + 1);
+
+      String clusterName = minionNode.getNodeGroup().getCluster().getName();
+      NodeGroupEntity group = clusterConfigMgr.getFlexibleNodeGroup(
+            clusterName, Constants.FLEXIBLE_GROUP_NAME, minionNode.getNodeGroup().getName());
+
+      // TODO: add resource limitation validation here
+      clusterEntityMgr.cleanupActionError(clusterName);
+
+      // create job
+      Map<String, JobParameter> param = new TreeMap<String, JobParameter>();
+      param.put(JobConstants.CLUSTER_NAME_JOB_PARAM, new JobParameter(
+            clusterName));
+      param.put(JobConstants.GROUP_NAME_JOB_PARAM, new JobParameter(
+            group.getName()));
+      param.put(JobConstants.SINGLE_VM_HOST_JOB_PARAM, new JobParameter(
+            minionNode.getHostName()));
+      param.put(JobConstants.TIMESTAMP_JOB_PARAM, new JobParameter(new Date()));
+      param.put(JobConstants.CLUSTER_SUCCESS_STATUS_JOB_PARAM,
+            new JobParameter(ClusterStatus.RUNNING.name()));
+      param.put(JobConstants.CLUSTER_FAILURE_STATUS_JOB_PARAM,
+            new JobParameter(ClusterStatus.RUNNING.name()));
+      param.put(JobConstants.VERIFY_NODE_STATUS_SCOPE_PARAM, new JobParameter(
+            JobConstants.GROUP_NODE_SCOPE_VALUE));
+      param.put(JobConstants.GROUP_INSTANCE_OLD_NUMBER_JOB_PARAM,
+            new JobParameter(Long.valueOf(0)));
+      JobParameters jobParameters = new JobParameters(param);
+      try {
+         return jobManager.runJob(JobConstants.ADD_FLEXIBLE_NODE_JOB_NAME,
+               jobParameters);
+      } catch (Exception e) {
+         logger.error("Failed to add node into cluster " + clusterName, e);
+         throw e;
+      }
    }
 
    public NodeRead getNodeByName(String nodeName) {
       return clusterEntityMgr.getNodeReadByVmName(nodeName);
+   }
+   /**
+    * Delete single node
+    *
+    * @param deleteSpec
+    * @return
+    * @throws Exception
+    */
+   @SuppressWarnings("unchecked")
+   public Long deleteNode(NodeDelete deleteSpec) throws Exception {
+      NodeEntity node = clusterEntityMgr.findNodeByIpAddress(deleteSpec.getIpAddress());
+      // create job
+      Map<String, JobParameter> param = new TreeMap<String, JobParameter>();
+      param.put(JobConstants.CLUSTER_NAME_JOB_PARAM, new JobParameter(
+            node.getNodeGroup().getCluster().getName()));
+      param.put(JobConstants.SUB_JOB_NODE_NAME, new JobParameter(
+            node.getVmName()));
+      JobParameters jobParameters = new JobParameters(param);
+      try {
+         return jobManager.runJob(JobConstants.DELETE_FLEXIBLE_NODE_JOB_NAME,
+               jobParameters);
+      } catch (Exception e) {
+         logger.error("Failed to delete node " + node.getVmName(), e);
+         throw e;
+      }
    }
 }

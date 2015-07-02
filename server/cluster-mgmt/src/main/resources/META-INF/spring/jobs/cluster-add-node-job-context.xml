@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/batch"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+   http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans.xsd
+   http://www.springframework.org/schema/batch
+   http://www.springframework.org/schema/batch/spring-batch.xsd
+   http://www.springframework.org/schema/aop
+   http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<beans:import resource="classpath*:/META-INF/spring/jobs/common-job-context.xml" />
+
+	<beans:bean name="softwareAddNodeClusterTasklet"
+		class="com.vmware.bdd.service.job.software.SoftwareManagementStep">
+		<beans:property name="clusterManager" ref="clusterManager" />
+		<beans:property name="jobExecutionStatusHolder" ref="jobExecutionStatusHolder" />
+		<beans:property name="clusterEntityMgr" ref="clusterEntityManager" />
+		<beans:property name="managementOperation" value="RESIZE" />
+	</beans:bean>
+	<beans:bean name="addNodePlanTasklet"
+		class="com.vmware.bdd.service.job.vm.AddFlexibleNodePlanStep">
+		<beans:property name="clusteringService" ref="clusteringService" />
+		<beans:property name="configMgr" ref="clusterConfigMgr" />
+		<beans:property name="clusterEntityMgr" ref="clusterEntityManager" />
+		<beans:property name="jobExecutionStatusHolder" ref="jobExecutionStatusHolder" />
+	</beans:bean>
+	<beans:bean name="createSingleFlexibleVmTasklet"
+		class="com.vmware.bdd.service.job.vm.ForkSingleFlexibleVMStep">
+		<beans:property name="clusteringService" ref="clusteringService" />
+		<beans:property name="clusterEntityMgr" ref="clusterEntityManager" />
+		<beans:property name="jobExecutionStatusHolder" ref="jobExecutionStatusHolder" />
+	</beans:bean>
+
+	<job id="addSingleFlexibleNodeClusterJob" job-repository="jobRepository">
+		<step id="addNodePlanStep" next="updateResizeClusterDataStep2">
+			<tasklet ref="addNodePlanTasklet" />
+			<listeners>
+				<listener ref="stepListener" />
+			</listeners>
+		</step>
+		<step id="updateResizeClusterDataStep2" next="resizeVMStep">
+			<tasklet ref="updateClusterDataTasklet" />
+			<listeners>
+				<listener ref="stepListener" />
+			</listeners>
+		</step>
+		<step id="resizeVMStep" next="updateResizeClusterDataStep3">
+			<tasklet ref="createSingleFlexibleVmTasklet" />
+			<listeners>
+				<listener ref="stepListener" />
+			</listeners>
+		</step>
+		<step id="updateResizeClusterDataStep3" next="nodeStatusVerifyStep2">
+			<tasklet ref="updateClusterDataTasklet" />
+			<listeners>
+				<listener ref="stepListener" />
+			</listeners>
+		</step>
+		<step id="nodeStatusVerifyStep2" next="softwareAddNodeStep">
+			<tasklet ref="clusterNodeStatusVerifyTasklet" />
+			<listeners>
+				<listener ref="stepListener" />
+			</listeners>
+		</step>
+		<step id="softwareAddNodeStep">
+			<tasklet ref="softwareAddNodeClusterTasklet" />
+			<listeners>
+				<listener ref="stepListener" />
+			</listeners>
+		</step>
+
+		<listeners>
+			<listener ref="clusterJobListener" />
+		</listeners>
+	</job>
+</beans:beans>

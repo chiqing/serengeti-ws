@@ -41,6 +41,7 @@ import com.vmware.bdd.placement.entity.BaseNode;
 import com.vmware.bdd.service.IExecutionService;
 import com.vmware.bdd.service.job.JobConstants;
 import com.vmware.bdd.spectypes.NicSpec;
+
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.scope.context.ChunkContext;
 
@@ -324,11 +325,18 @@ public class JobUtils {
 
    public static boolean VerifyClusterNodes(String clusterName,
          String verifyScope, String groupName, long oldInstanceNum,
+         String verifyVmName,
          IClusterEntityManager clusterEntityMgr) {
 
       // only when node is created, we need to verify node status
       if (verifyScope != null
             && verifyScope.equals(JobConstants.GROUP_NODE_SCOPE_VALUE)) {
+         if (verifyVmName != null) {
+            List<NodeEntity> toBeVerified = new ArrayList<NodeEntity>();
+            NodeEntity nodeEntity = clusterEntityMgr.getNodeByVmName(verifyVmName);
+            toBeVerified.add(nodeEntity);
+            return JobUtils.verifyNodesStatus(toBeVerified, NodeStatus.VM_READY, false);
+         }
          return verifyGroupVmReady(clusterName, groupName, oldInstanceNum,
                clusterEntityMgr);
       } else {

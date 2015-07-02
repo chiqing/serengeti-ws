@@ -54,6 +54,7 @@ import com.vmware.bdd.apitypes.FixDiskRequestBody;
 import com.vmware.bdd.apitypes.NetworkAdd;
 import com.vmware.bdd.apitypes.NetworkRead;
 import com.vmware.bdd.apitypes.NodeCreate;
+import com.vmware.bdd.apitypes.NodeDelete;
 import com.vmware.bdd.apitypes.NodeRead;
 import com.vmware.bdd.apitypes.RackInfo;
 import com.vmware.bdd.apitypes.RackInfoList;
@@ -1250,6 +1251,27 @@ public class RestResource {
          throw BddException.INVALID_PARAMETER("node name", nodeName);
       }
       return clusterMgr.getNodeByName(nodeName);
+   }
+
+   /**
+    * Delete a node
+    * @param delNodeSpec
+    */
+   @RequestMapping(value = "/nodes", method = RequestMethod.DELETE)
+   @ResponseStatus(HttpStatus.OK)
+   @RestCallPointcut
+   public void deleteNode(@RequestBody NodeDelete deleteSpec,
+         HttpServletRequest request, HttpServletResponse response)
+               throws Exception {
+      verifyInitialized();
+      String ip = deleteSpec.getIpAddress();
+      boolean valid = IpAddressUtil.isValidIp(ip);
+      if (!valid) {
+         throw BddException.INVALID_PARAMETER("Node ip address", ip);
+      }
+
+      long jobExecutionId = clusterMgr.deleteNode(deleteSpec);
+      redirectRequest(jobExecutionId, request, response);
    }
 
    @ExceptionHandler(Throwable.class)

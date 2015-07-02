@@ -188,6 +188,15 @@ public class VcResourceUtils {
       });
    }
 
+   public static VcCluster getHostVcCluster(final VcHost host) {
+      return VcContext.inVcSessionDo(new VcSession<VcCluster>() {
+         @Override
+         protected VcCluster body() throws Exception {
+            return host.getCluster();
+         }
+      });
+   }
+
    public static VcCluster findVcCluster(final String clusterName) {
       logger.debug("find vc cluster: " + clusterName);
       VcCluster vcCluster = VcContext.inVcSessionDo(new VcSession<VcCluster>() {

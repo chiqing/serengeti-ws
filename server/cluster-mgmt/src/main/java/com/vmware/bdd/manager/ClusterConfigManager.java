@@ -967,7 +967,11 @@ public class ClusterConfigManager {
          group.setInstanceType(ngEntity.getNodeType());
       }
 
-      group.setInstanceNum(ngEntity.getDefineInstanceNum());
+      int instanceNum = ngEntity.getDefineInstanceNum();
+      if (instanceNum == 0) {
+         instanceNum = ngEntity.getNodes().size();
+      }
+      group.setInstanceNum(instanceNum);
 
       Integer instancePerHost = ngEntity.getInstancePerHost();
       Set<NodeGroupAssociation> associonEntities =
@@ -1343,5 +1347,26 @@ public class ClusterConfigManager {
       if (CommonUtil.isBlank(cloneType)) {
          clusterCreate.setClusterCloneType(Constants.CLUSTER_CLONE_TYPE_FAST_CLONE);
       }
+   }
+
+   @Transactional
+   public NodeGroupEntity getFlexibleNodeGroup(String clusterName, String nodeGroupName,
+         String refGroupName) {
+      ClusterEntity clusterEntity = clusterEntityMgr.findByName(clusterName);
+      NodeGroupEntity refGroupEntity = clusterEntityMgr.findByName(clusterName, refGroupName);
+      NodeGroupEntity nodeGroupEntity = clusterEntityMgr.findByName(clusterName, nodeGroupName);
+      if (nodeGroupEntity == null) {
+         nodeGroupEntity = new NodeGroupEntity();
+         nodeGroupEntity.setCluster(clusterEntity);
+         nodeGroupEntity.setName(Constants.FLEXIBLE_GROUP_NAME);
+         nodeGroupEntity.setCpuNum(refGroupEntity.getCpuNum());
+         nodeGroupEntity.setMemorySize(refGroupEntity.getMemorySize());
+         nodeGroupEntity.setStorageType(refGroupEntity.getStorageType());
+         nodeGroupEntity.setStorageSize(refGroupEntity.getStorageSize());
+         nodeGroupEntity.setHaFlag(Constants.HA_FLAG_OFF);
+         nodeGroupEntity.setRoles(refGroupEntity.getRoles());
+         clusterEntity.getNodeGroups().add(nodeGroupEntity);
+      }
+      return nodeGroupEntity;
    }
 }

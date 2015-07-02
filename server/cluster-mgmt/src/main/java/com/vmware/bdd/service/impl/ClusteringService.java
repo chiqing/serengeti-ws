@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Semaphore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,7 +71,6 @@ import com.vmware.bdd.apitypes.IpBlock;
 import com.vmware.bdd.apitypes.NetworkAdd;
 import com.vmware.bdd.apitypes.NodeGroupCreate;
 import com.vmware.bdd.apitypes.Priority;
-import com.vmware.bdd.apitypes.StorageRead.DiskScsiControllerType;
 import com.vmware.bdd.apitypes.StorageRead.DiskType;
 import com.vmware.bdd.clone.spec.VmCreateResult;
 import com.vmware.bdd.clone.spec.VmCreateSpec;
@@ -100,6 +100,8 @@ import com.vmware.bdd.service.event.VmEventManager;
 import com.vmware.bdd.service.job.ClusterNodeUpdator;
 import com.vmware.bdd.service.job.NodeOperationStatus;
 import com.vmware.bdd.service.job.StatusUpdater;
+import com.vmware.bdd.service.job.vm.ForkChildVmSp;
+import com.vmware.bdd.service.job.vm.ForkParentService;
 import com.vmware.bdd.service.resmgmt.INetworkService;
 import com.vmware.bdd.service.resmgmt.IResourceService;
 import com.vmware.bdd.service.sp.BaseProgressCallback;
@@ -542,8 +544,9 @@ public class ClusteringService implements IClusteringService {
             if (usedIps != null && !usedIps.isEmpty()) {
                availableIps.removeAll(usedIps);
             }
-            AuAssert.check(availableIps.size() == vNodes.size());
-            for (j = 0; j < availableIps.size(); j++) {
+//            AuAssert.check(availableIps.size() == vNodes.size());
+            logger.info("available ip: " + availableIps.size() + ", node size: " + vNodes.size());
+            for (j = 0; j < vNodes.size(); j++) {
                vNodes.get(j).updateNicOfPortGroup(portGroupName,
                      availableIps.get(j), null, null);
             }
@@ -1250,7 +1253,84 @@ public class ClusteringService implements IClusteringService {
       return success;
    }
 
-   private IClusterCloneService chooseClusterCloneService(String type) {
+   public boolean forkOneVM(List<NetworkAdd> networkAdds,
+         List<BaseNode> vNodes, Map<String, Set<String>> occupiedIpSets,
+         StatusUpdater statusUpdator, ForkParentService forkParent) {
+      if (vNodes.isEmpty()) {
+         logger.info("No vm to be created.");
+         return true;
+      }
+      updateNicLabels(vNodes);
+      allocateStaticIp(vNodes, networkAdds, occupiedIpSets);
+      logger.info("forkOneVM, start to create VMs.");
+
+      // update vm info in vc cache, in case snapshot is removed by others
+      VcVmUtil.updateVm(templateVm.getId());
+
+      VcVirtualMachine parentVM = forkParent.findRootParentVm(vNodes.get(0).getTargetHost());
+      VmCreateSpec sourceSpec = new VmCreateSpec();
+      sourceSpec.setVmId(parentVM.getId());
+      sourceSpec.setVmName(parentVM.getName());
+      sourceSpec.setTargetHost(parentVM.getHost());
+
+      BaseNode vNode = vNodes.get(0);
+      // prepare for cloning result
+      vNode.setSuccess(false);
+      vNode.setFinished(false);
+      // generate create spec for fast clone
+      VmCreateSpec spec = new VmCreateSpec();
+      VmSchema createSchema = getVmSchema(vNode);
+      spec.setSchema(createSchema);
+      GuestMachineIdSpec machineIdSpec =
+            new GuestMachineIdSpec(networkAdds,
+                  vNode.fetchPortGroupToIpV4Map(),
+                  vNode.getPrimaryMgtPgName(), vNode, networkMgr);
+      logger.info("machine id of vm " + vNode.getVmName() + ":\n"
+            + machineIdSpec.toString());
+      spec.setBootupConfigs(machineIdSpec.toGuestVariable());
+      StartVmPostPowerOn query =
+            new StartVmPostPowerOn(vNode.getNics().keySet(),
+                  Constants.VM_POWER_ON_WAITING_SEC);
+      spec.setPostPowerOn(query);
+      spec.setPrePowerOn(getPrePowerOnFunc(vNode, false));
+      spec.setCloneType(VcVmCloneType.VMFORK);
+      spec.setTargetDs(getVcDatastore(vNode));
+      spec.setTargetFolder(parentVM.getParentFolder());
+      spec.setTargetHost(VcResourceUtils.findHost(vNode.getTargetHost()));
+      spec.setTargetRp(parentVM.getResourcePool());
+      spec.setVmName(vNode.getVmName());
+
+      logger.info("ClusteringService, start to fork VM " + vNode.getVmName());
+
+      ForkChildVmSp sp = new ForkChildVmSp(parentVM, spec, new Semaphore(1));
+      boolean success = true;
+      try {
+         sp.call();
+         vNode.setFinished(true);
+         vNode.setSuccess(true);
+         vNode.setVmMobId(spec.getVmId());
+         boolean vmSucc = VcVmUtil.setBaseNodeForVm(vNode, spec.getVmId());
+         if (!vmSucc) {
+            success = false;
+            vNode.setSuccess(false);
+            vNode.setErrMessage(CommonUtil.getCurrentTimestamp() + " "
+                  + vNode.getNodeAction());
+         }
+      } catch (Exception e) {
+         success = false;
+         vNode.setSuccess(false);
+         vNode.setErrMessage(CommonUtil.getCurrentTimestamp() + " "
+               + e.getMessage());
+      }
+      if (success) {
+         logger.info("VM is successfully created.");
+      } else {
+         logger.info("VM creation failed.");
+      }
+      return success;
+   }
+
+   public IClusterCloneService chooseClusterCloneService(String type) {
       String qualifier = type+"ClusterCloneService";
       IClusterCloneService clusterCloneService = this.cloneServiceMap.get(qualifier);
 

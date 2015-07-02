@@ -28,6 +28,8 @@ import com.vmware.bdd.placement.entity.BaseNode;
 import com.vmware.bdd.service.event.VmEventManager;
 import com.vmware.bdd.service.job.NodeOperationStatus;
 import com.vmware.bdd.service.job.StatusUpdater;
+import com.vmware.bdd.service.job.vm.ForkParentService;
+import com.vmware.bdd.vmclone.service.intf.IClusterCloneService;
 
 public interface IClusteringService {
 
@@ -202,4 +204,9 @@ public interface IClusteringService {
    public VmEventManager getEventProcessor();
 
    boolean isSupportVHM(String clusterName);
+
+   public IClusterCloneService chooseClusterCloneService(String type);
+   public boolean forkOneVM(List<NetworkAdd> networkAdds,
+         List<BaseNode> vNodes, Map<String, Set<String>> occupiedIpSets,
+         StatusUpdater statusUpdator, ForkParentService forkParent);
 }

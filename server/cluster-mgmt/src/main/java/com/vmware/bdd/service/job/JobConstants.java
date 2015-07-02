@@ -26,6 +26,8 @@ public interface JobConstants {
    public static final String SET_MANUAL_ELASTICITY_JOB_NAME = "setManualElasticityJob";
    public static final String QUERY_CLUSTER_JOB_NAME = "queryClusterJob";
    public static final String SHRINK_CLUSTER_JOB_NAME = "shrinkClusterJob";
+   public static final String ADD_FLEXIBLE_NODE_JOB_NAME = "addSingleFlexibleNodeClusterJob";
+   public static final String DELETE_FLEXIBLE_NODE_JOB_NAME = "deleteSingleFlexibleNodeJob";
 
    public static final String CLUSTER_SPEC_JOB_PARAM = "clusterSpec";
    public static final String CLUSTER_ADDED_NODES_JOB_PARAM = "clusterAddedNodes";
@@ -38,6 +40,7 @@ public interface JobConstants {
    public static final String GROUP_NAME_JOB_PARAM = "groupName";
    public static final String GROUP_INSTANCE_NEW_NUMBER_JOB_PARAM = "newInstanceNumber";
    public static final String GROUP_INSTANCE_OLD_NUMBER_JOB_PARAM = "oldInstanceNumber";
+   public static final String VERIFY_VM_NAME_JOB_PARAM = "verifyVmName";
    public static final String ACTIVE_COMPUTE_NODE_NUMBER_JOB_PARAM = "activeComputeNodeNumber";
    public static final String VHM_ACTION_JOB_PARAM = "vhmAction";
    public static final String TIMESTAMP_JOB_PARAM = "timeStamp";
@@ -80,4 +83,5 @@ public interface JobConstants {
    public static final String CLUSTER_EXCLUSIVE_WRITE_LOCKED = "exclusiveWriteLocked";
    public static final String SET_PASSWORD_SUCCEED_JOB_PARAM = "set.password.succeed";
    public static final String FORCE_CLUSTER_OPERATION_JOB_PARAM = "force.cluster.operation";
+   public static final String SINGLE_VM_HOST_JOB_PARAM = "single.vm.host";
 }
