@@ -258,6 +258,7 @@ public class ClusterUpdateDataStep extends TrackableTasklet {
 
       // set ipconfigs field even IPs are not yet retrieved, otherwise if
       // Tomcat crashes, we will lost the ipconfigs template
+      logger.info("nic number: " + vNode.getNics().values().size());
       for (NicSpec nicSpec : vNode.getNics().values()) {
          NetworkEntity networkEntity =
                networkMgr.getNetworkEntityByName(nicSpec.getNetworkName());
@@ -266,6 +267,7 @@ public class ClusterUpdateDataStep extends TrackableTasklet {
             nicEntity = new NicEntity();
             nodeEntity.getNics().add(nicEntity);
          }
+         logger.info("nic addrss: " + nicSpec.getIpv4Address());
          nicEntity.setIpv4Address(nicSpec.getIpv4Address());
          nicEntity.setIpv6Address(nicSpec.getIpv6Address());
          nicEntity.setMacAddress(nicSpec.getMacAddress());

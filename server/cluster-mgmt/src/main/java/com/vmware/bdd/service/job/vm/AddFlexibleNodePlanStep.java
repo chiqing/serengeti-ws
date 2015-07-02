@@ -21,10 +21,13 @@ import java.util.UUID;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 
+import com.vmware.aurora.composition.NetworkSchema;
 import com.vmware.aurora.composition.VmSchema;
+import com.vmware.aurora.composition.NetworkSchema.Network;
 import com.vmware.aurora.vc.VcDatastore;
 import com.vmware.aurora.vc.VcHost;
 import com.vmware.bdd.apitypes.ClusterCreate;
+import com.vmware.bdd.apitypes.NetworkAdd;
 import com.vmware.bdd.entity.NodeEntity;
 import com.vmware.bdd.exception.BddException;
 import com.vmware.bdd.manager.ClusterConfigManager;
@@ -71,7 +74,21 @@ public class AddFlexibleNodePlanStep extends TrackableTasklet {
             VcVmUtil.getVmSchema(clusterSpec, nodeGroupName, new ArrayList<DiskSpec>(),
                   clusteringService.getTemplateVmId(),
                   Constants.ROOT_SNAPSTHOT_NAME);
+      // target network, hard coded as the only one NIC
+      NetworkSchema netSchema = new NetworkSchema();
+
+      ArrayList<Network> networks = new ArrayList<Network>();
+      netSchema.networks = networks;
+
+      // TODO: enhance this logic to support nodegroup level networks
+      for (NetworkAdd networkAdd : clusterSpec.getNetworkings()) {
+         Network network = new Network();
+         network.vcNetwork = networkAdd.getPortGroup();
+         networks.add(network);
+      }
+
       node.setVmSchema(createSchema);
+      node.getVmSchema().networkSchema = netSchema;
       node.setTargetHost(host);
       VcHost vcHost = VcResourceUtils.findHost(host);
       List<VcDatastore> dss = vcHost.getDatastores();

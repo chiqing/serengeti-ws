@@ -358,6 +358,7 @@ public class JobManager {
       }
       jobStatus.setStatus(status);
       long needNodeInfo = jobParameters.getLong(JobConstants.NEED_NODE_INFO);
+      logger.info("need info: " + needNodeInfo);
       if (subJobEnabled == 1 || needNodeInfo == 1) {
          List<NodeOperationStatus> succeedNodes =
                (ArrayList<NodeOperationStatus>) jobExecution.getExecutionContext()
@@ -365,6 +366,7 @@ public class JobManager {
          List<NodeOperationStatus> failNodes =
                (ArrayList<NodeOperationStatus>) jobExecution.getExecutionContext()
                      .get(JobConstants.SUB_JOB_NODES_FAIL);
+         logger.info("succeeded nodes: " + succeedNodes);
          if (succeedNodes != null) {
             jobStatus.setSucceedNodes(convert(succeedNodes));
          }
