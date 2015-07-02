@@ -208,5 +208,5 @@ public interface IClusteringService {
    public IClusterCloneService chooseClusterCloneService(String type);
    public boolean forkOneVM(List<NetworkAdd> networkAdds,
          List<BaseNode> vNodes, Map<String, Set<String>> occupiedIpSets,
-         StatusUpdater statusUpdator, ForkParentService forkParent);
+         StatusUpdater statusUpdator, ForkParentService forkParent, String referenceVmId);
 }

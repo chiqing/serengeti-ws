@@ -84,4 +84,5 @@ public interface JobConstants {
    public static final String SET_PASSWORD_SUCCEED_JOB_PARAM = "set.password.succeed";
    public static final String FORCE_CLUSTER_OPERATION_JOB_PARAM = "force.cluster.operation";
    public static final String SINGLE_VM_HOST_JOB_PARAM = "single.vm.host";
+   public static final String REFERENCE_VM_ID_JOB_PARAM = "reference.vm.id";
 }

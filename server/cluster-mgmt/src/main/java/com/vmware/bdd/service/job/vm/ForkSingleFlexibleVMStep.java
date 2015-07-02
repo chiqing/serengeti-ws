@@ -59,6 +59,9 @@ public class ForkSingleFlexibleVMStep extends TrackableTasklet {
 
       boolean success = true;
       if (clusterCloneType.equals(Constants.CLUSTER_CLONE_TYPE_INSTANT_CLONE)) {
+         String referenceVmId = 
+               getJobParameters(chunkContext).getString(
+                     JobConstants.REFERENCE_VM_ID_JOB_PARAM);
          success = clusteringService.forkOneVM(clusterSpec.getNetworkings(), vNodes,
                usedIpSets, statusUpdator, forkParent);
       } else {

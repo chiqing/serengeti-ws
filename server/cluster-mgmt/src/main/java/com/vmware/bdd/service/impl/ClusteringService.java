@@ -1255,7 +1255,7 @@ public class ClusteringService implements IClusteringService {
 
    public boolean forkOneVM(List<NetworkAdd> networkAdds,
          List<BaseNode> vNodes, Map<String, Set<String>> occupiedIpSets,
-         StatusUpdater statusUpdator, ForkParentService forkParent) {
+         StatusUpdater statusUpdator, ForkParentService forkParent, String referenceVmId) {
       if (vNodes.isEmpty()) {
          logger.info("No vm to be created.");
          return true;
@@ -1291,13 +1291,14 @@ public class ClusteringService implements IClusteringService {
       StartVmPostPowerOn query =
             new StartVmPostPowerOn(vNode.getNics().keySet(),
                   Constants.VM_POWER_ON_WAITING_SEC);
+      VcVirtualMachine referenceVm = VcCache.getIgnoreMissing(referenceVmId);
       spec.setPostPowerOn(query);
       spec.setPrePowerOn(getPrePowerOnFunc(vNode, false));
       spec.setCloneType(VcVmCloneType.VMFORK);
       spec.setTargetDs(getVcDatastore(vNode));
-      spec.setTargetFolder(parentVM.getParentFolder());
+      spec.setTargetFolder(referenceVm.getParentFolder());
       spec.setTargetHost(VcResourceUtils.findHost(vNode.getTargetHost()));
-      spec.setTargetRp(parentVM.getResourcePool());
+      spec.setTargetRp(referenceVm.getResourcePool());
       spec.setVmName(vNode.getVmName());
 
       logger.info("ClusteringService, start to fork VM " + vNode.getVmName());

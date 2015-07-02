@@ -1560,6 +1560,8 @@ public class ClusterManager {
       Map<String, JobParameter> param = new TreeMap<String, JobParameter>();
       param.put(JobConstants.CLUSTER_NAME_JOB_PARAM, new JobParameter(
             clusterName));
+      param.put(JobConstants.REFERENCE_VM_ID_JOB_PARAM, new JobParameter(
+            minionNode.getMoId()));
       param.put(JobConstants.GROUP_NAME_JOB_PARAM, new JobParameter(
             group.getName()));
       param.put(JobConstants.SINGLE_VM_HOST_JOB_PARAM, new JobParameter(
