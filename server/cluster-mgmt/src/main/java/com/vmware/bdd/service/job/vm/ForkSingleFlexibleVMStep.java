@@ -14,6 +14,7 @@
  ***************************************************************************/
 package com.vmware.bdd.service.job.vm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import com.vmware.bdd.service.IClusteringService;
 import com.vmware.bdd.service.job.DefaultStatusUpdater;
 import com.vmware.bdd.service.job.JobConstants;
 import com.vmware.bdd.service.job.JobExecutionStatusHolder;
+import com.vmware.bdd.service.job.NodeOperationStatus;
 import com.vmware.bdd.service.job.StatusUpdater;
 import com.vmware.bdd.service.job.TrackableTasklet;
 import com.vmware.bdd.utils.Constants;
@@ -77,6 +79,18 @@ public class ForkSingleFlexibleVMStep extends TrackableTasklet {
          // release the resource reservation since vm is created
          clusteringService.commitReservation(reservationId);
          putIntoJobExecutionContext(chunkContext, JobConstants.CLUSTER_RESOURCE_RESERVATION_ID_JOB_PARAM, null);
+      }
+
+      if (success) {
+         List<NodeOperationStatus> succeededNodes = new ArrayList<NodeOperationStatus>();
+         NodeOperationStatus succeededSubJob = new NodeOperationStatus(vNodes.get(0).getVmName());
+         succeededNodes.add(succeededSubJob);
+         putIntoJobExecutionContext(chunkContext, JobConstants.SUB_JOB_NODES_SUCCEED, vNodes.get(0).getVmName());
+      } else {
+         List<NodeOperationStatus> failedNodes = new ArrayList<NodeOperationStatus>();
+         NodeOperationStatus failedSubJob = new NodeOperationStatus(vNodes.get(0).getVmName());
+         failedNodes.add(failedSubJob);
+         putIntoJobExecutionContext(chunkContext, JobConstants.SUB_JOB_NODES_FAIL, vNodes.get(0).getVmName());
       }
       return RepeatStatus.FINISHED;
    }

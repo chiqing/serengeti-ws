@@ -65,6 +65,7 @@ public interface JobConstants {
    public static final String CLUSTER_RESOURCE_RESERVATION_ID_JOB_PARAM = "ResourceReservationId";
    public static final String EXPECTED_NODE_STATUS = "expectedNodeStatus";
    public static final String SUB_JOB_ENABLED = "sub.job.enabled";
+   public static final String NEED_NODE_INFO = "main.job.need.node.info";
    public static final String SUB_JOB_NUMBER = "sub.job.number";
    public static final String SUB_JOB_PARAMETERS_NUMBER = "sub.job.parameters.number.";
    public static final String SUB_JOB_PARAMETERS_KEY_PREFIX = "sub.job.parameters.parameter.key.";

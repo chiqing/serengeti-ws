@@ -357,7 +357,8 @@ public class JobManager {
          status = Status.UNKNOWN;
       }
       jobStatus.setStatus(status);
-      if (subJobEnabled == 1) {
+      long needNodeInfo = jobParameters.getLong(JobConstants.NEED_NODE_INFO);
+      if (subJobEnabled == 1 || needNodeInfo == 1) {
          List<NodeOperationStatus> succeedNodes =
                (ArrayList<NodeOperationStatus>) jobExecution.getExecutionContext()
                      .get(JobConstants.SUB_JOB_NODES_SUCCEED);

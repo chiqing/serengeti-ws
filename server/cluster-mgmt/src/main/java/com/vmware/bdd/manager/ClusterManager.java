@@ -1042,6 +1042,8 @@ public class ClusterManager {
             new JobParameter(ClusterStatus.RUNNING.name()));
       param.put(JobConstants.CLUSTER_FAILURE_STATUS_JOB_PARAM,
             new JobParameter(ClusterStatus.RUNNING.name()));
+      param.put(JobConstants.NEED_NODE_INFO,
+            new JobParameter(Long.valueOf(1)));
       param.put(JobConstants.VERIFY_NODE_STATUS_SCOPE_PARAM, new JobParameter(
             JobConstants.GROUP_NODE_SCOPE_VALUE));
       JobParameters jobParameters = new JobParameters(param);
