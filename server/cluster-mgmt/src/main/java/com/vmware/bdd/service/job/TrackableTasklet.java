@@ -55,7 +55,7 @@ public abstract class TrackableTasklet implements Tasklet {
       return chunkContext.getStepContext().getStepExecution().getJobExecution().getId();
    }
 
-   private static ExecutionContext getJobExecutionContext(ChunkContext chunkContext) {
+   public static ExecutionContext getJobExecutionContext(ChunkContext chunkContext) {
       return chunkContext.getStepContext().getStepExecution().getJobExecution()
             .getExecutionContext();
    }

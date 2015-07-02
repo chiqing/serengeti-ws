@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import com.google.gson.reflect.TypeToken;
@@ -81,16 +82,17 @@ public class ForkSingleFlexibleVMStep extends TrackableTasklet {
          putIntoJobExecutionContext(chunkContext, JobConstants.CLUSTER_RESOURCE_RESERVATION_ID_JOB_PARAM, null);
       }
 
+      ExecutionContext context = getJobExecutionContext(chunkContext);
       if (success) {
          List<NodeOperationStatus> succeededNodes = new ArrayList<NodeOperationStatus>();
          NodeOperationStatus succeededSubJob = new NodeOperationStatus(vNodes.get(0).getVmName());
          succeededNodes.add(succeededSubJob);
-         putIntoJobExecutionContext(chunkContext, JobConstants.SUB_JOB_NODES_SUCCEED, succeededNodes);
+         context.put(JobConstants.SUB_JOB_NODES_SUCCEED, succeededNodes);
       } else {
          List<NodeOperationStatus> failedNodes = new ArrayList<NodeOperationStatus>();
          NodeOperationStatus failedSubJob = new NodeOperationStatus(vNodes.get(0).getVmName());
          failedNodes.add(failedSubJob);
-         putIntoJobExecutionContext(chunkContext, JobConstants.SUB_JOB_NODES_FAIL, failedNodes);
+         context.put(JobConstants.SUB_JOB_NODES_FAIL, failedNodes)
       }
       return RepeatStatus.FINISHED;
    }
