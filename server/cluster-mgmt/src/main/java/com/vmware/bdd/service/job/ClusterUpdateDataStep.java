@@ -161,9 +161,9 @@ public class ClusterUpdateDataStep extends TrackableTasklet {
          oldInstanceNum =
                getJobParameters(chunkContext).getLong(
                      JobConstants.GROUP_INSTANCE_OLD_NUMBER_JOB_PARAM);
-         String verifyVmName =
-               getJobParameters(chunkContext).getString(
-                     JobConstants.VERIFY_VM_NAME_JOB_PARAM);
+         String verifyVmName = getFromJobExecutionContext(chunkContext, 
+               JobConstants.VERIFY_VM_NAME_JOB_PARAM,
+               String.class);
          success = JobUtils.VerifyClusterNodes(clusterName, verifyScope, groupName,
                oldInstanceNum, verifyVmName, getClusterEntityMgr());
 

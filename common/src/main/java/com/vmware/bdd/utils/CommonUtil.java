@@ -389,6 +389,9 @@ public class CommonUtil {
    public static long getVmIndex(String vmName) throws BddException {
       String[] split = splitVmName(vmName);
       try {
+         if (split[1] != null && split[1].equalsIgnoreCase("pod")) {
+            return -1;
+         }
          return Long.valueOf(split[2]);
       } catch (Exception e) {
          logger.error("vm name " + vmName

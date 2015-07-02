@@ -70,6 +70,8 @@ public class ForkSingleFlexibleVMStep extends TrackableTasklet {
       }
       putIntoJobExecutionContext(chunkContext, JobConstants.CLUSTER_CREATE_VM_OPERATION_SUCCESS, success);
       putIntoJobExecutionContext(chunkContext, JobConstants.CLUSTER_ADDED_NODES_JOB_PARAM, vNodes);
+      putIntoJobExecutionContext(chunkContext, JobConstants.VERIFY_VM_NAME_JOB_PARAM, vNodes.get(0).getVmName());
+      
       UUID reservationId = getFromJobExecutionContext(chunkContext, JobConstants.CLUSTER_RESOURCE_RESERVATION_ID_JOB_PARAM, UUID.class);
       if (reservationId != null) {
          // release the resource reservation since vm is created
