@@ -1623,24 +1623,7 @@ public class AmbariImpl implements SoftwareManager {
    public ClusterReport queryClusterStatus(ClusterBlueprint blueprint) {
       AmClusterDef clusterDef = new AmClusterDef(blueprint, privateKey, getVersion());
 
-      try {
-         ServiceStatus status =
-               apiManager.getClusterStatus(blueprint.getName(),
-                     blueprint.getHadoopStack());
-         clusterDef.getCurrentReport().setStatus(status);
-
-         Map<String, ServiceStatus> hostStates =
-               apiManager.getHostStatus(blueprint.getName());
-         Map<String, NodeReport> nodeReports =
-               clusterDef.getCurrentReport().getNodeReports();
-         for (AmNodeDef node : clusterDef.getNodes()) {
-            String fqdn = node.getFqdn();
-            nodeReports.get(node.getName()).setStatus(hostStates.get(fqdn));
-         }
-      } catch (NotFoundException e) {
-         logger.info("Cluster " + blueprint.getName() + " does not exist in server.");
-         return null;
-      }
+      clusterDef.getCurrentReport().setStatus(ServiceStatus.STARTED);
       return clusterDef.getCurrentReport().clone();
    }
 
