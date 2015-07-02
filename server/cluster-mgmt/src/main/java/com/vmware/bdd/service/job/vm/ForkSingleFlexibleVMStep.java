@@ -92,7 +92,7 @@ public class ForkSingleFlexibleVMStep extends TrackableTasklet {
          List<NodeOperationStatus> failedNodes = new ArrayList<NodeOperationStatus>();
          NodeOperationStatus failedSubJob = new NodeOperationStatus(vNodes.get(0).getVmName());
          failedNodes.add(failedSubJob);
-         context.put(JobConstants.SUB_JOB_NODES_FAIL, failedNodes)
+         context.put(JobConstants.SUB_JOB_NODES_FAIL, failedNodes);
       }
       return RepeatStatus.FINISHED;
    }
