@@ -85,12 +85,12 @@ public class ForkSingleFlexibleVMStep extends TrackableTasklet {
          List<NodeOperationStatus> succeededNodes = new ArrayList<NodeOperationStatus>();
          NodeOperationStatus succeededSubJob = new NodeOperationStatus(vNodes.get(0).getVmName());
          succeededNodes.add(succeededSubJob);
-         putIntoJobExecutionContext(chunkContext, JobConstants.SUB_JOB_NODES_SUCCEED, vNodes.get(0).getVmName());
+         putIntoJobExecutionContext(chunkContext, JobConstants.SUB_JOB_NODES_SUCCEED, succeededNodes);
       } else {
          List<NodeOperationStatus> failedNodes = new ArrayList<NodeOperationStatus>();
          NodeOperationStatus failedSubJob = new NodeOperationStatus(vNodes.get(0).getVmName());
          failedNodes.add(failedSubJob);
-         putIntoJobExecutionContext(chunkContext, JobConstants.SUB_JOB_NODES_FAIL, vNodes.get(0).getVmName());
+         putIntoJobExecutionContext(chunkContext, JobConstants.SUB_JOB_NODES_FAIL, failedNodes);
       }
       return RepeatStatus.FINISHED;
    }
