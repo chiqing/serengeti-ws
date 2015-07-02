@@ -34,37 +34,37 @@
 	</beans:bean>
 
 	<job id="addSingleFlexibleNodeClusterJob" job-repository="jobRepository">
-		<step id="addNodePlanStep" next="updateResizeClusterDataStep2">
+		<step id="addSingleNodePlanStep" next="updateResizeSingleClusterDataStep2">
 			<tasklet ref="addNodePlanTasklet" />
 			<listeners>
 				<listener ref="stepListener" />
 			</listeners>
 		</step>
-		<step id="updateResizeClusterDataStep2" next="resizeVMStep">
+		<step id="updateResizeSingleClusterDataStep2" next="resizeSingleVMStep">
 			<tasklet ref="updateClusterDataTasklet" />
 			<listeners>
 				<listener ref="stepListener" />
 			</listeners>
 		</step>
-		<step id="resizeVMStep" next="updateResizeClusterDataStep3">
+		<step id="resizeSingleVMStep" next="updateResizeSingleClusterDataStep3">
 			<tasklet ref="createSingleFlexibleVmTasklet" />
 			<listeners>
 				<listener ref="stepListener" />
 			</listeners>
 		</step>
-		<step id="updateResizeClusterDataStep3" next="nodeStatusVerifyStep2">
+		<step id="updateResizeSingleClusterDataStep3" next="singleNodeStatusVerifyStep2">
 			<tasklet ref="updateClusterDataTasklet" />
 			<listeners>
 				<listener ref="stepListener" />
 			</listeners>
 		</step>
-		<step id="nodeStatusVerifyStep2" next="softwareAddNodeStep">
+		<step id="singleNodeStatusVerifyStep2" next="softwareAddSingleNodeStep">
 			<tasklet ref="clusterNodeStatusVerifyTasklet" />
 			<listeners>
 				<listener ref="stepListener" />
 			</listeners>
 		</step>
-		<step id="softwareAddNodeStep">
+		<step id="softwareAddSingleNodeStep">
 			<tasklet ref="softwareAddNodeClusterTasklet" />
 			<listeners>
 				<listener ref="stepListener" />
