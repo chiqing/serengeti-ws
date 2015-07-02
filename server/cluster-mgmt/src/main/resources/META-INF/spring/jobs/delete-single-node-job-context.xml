@@ -11,15 +11,15 @@
    http://www.springframework.org/schema/aop/spring-aop.xsd">
 
 <beans:import resource="classpath*:/META-INF/spring/jobs/common-job-context.xml" />
-<beans:bean name="deleteSingleVMTasklet"
+<beans:bean name="deleteSingleFlexibleVMTasklet"
             class="com.vmware.bdd.service.job.vm.DeleteFlexibleGroupSingleVMStep">
     <beans:property name="jobExecutionStatusHolder" ref="jobExecutionStatusHolder" />
     <beans:property name="clusterEntityManager" ref="clusterEntityManager" />
 </beans:bean>
 
 <job id="deleteSingleFlexibleNodeJob" job-repository="jobRepository">
-    <step id="deleteSingleVMStep">
-        <tasklet ref="deleteSingleVMTasklet" />
+    <step id="deleteSingleFlexibleVMStep">
+        <tasklet ref="deleteSingleFlexibleVMTasklet" />
         <listeners>
             <listener ref="stepListener" />
         </listeners>
