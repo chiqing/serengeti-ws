@@ -1253,6 +1253,17 @@ public class ClusteringService implements IClusteringService {
       return success;
    }
 
+   private Folder getVmParentFolder(final VcVirtualMachine vm) {
+      Folder folder =
+            VcContext.inVcSessionDo(new VcSession<Folder>() {
+               @Override
+               protected Folder body() throws Exception {
+                  return vm.getParentFolder();
+               }
+            });
+      return folder;
+   }
+
    public boolean forkOneVM(List<NetworkAdd> networkAdds,
          List<BaseNode> vNodes, Map<String, Set<String>> occupiedIpSets,
          StatusUpdater statusUpdator, ForkParentService forkParent, String referenceVmId) {
@@ -1296,7 +1307,7 @@ public class ClusteringService implements IClusteringService {
       spec.setPrePowerOn(getPrePowerOnFunc(vNode, false));
       spec.setCloneType(VcVmCloneType.VMFORK);
       spec.setTargetDs(getVcDatastore(vNode));
-      spec.setTargetFolder(referenceVm.getParentFolder());
+      spec.setTargetFolder(getVmParentFolder(referenceVm));
       spec.setTargetHost(VcResourceUtils.findHost(vNode.getTargetHost()));
       spec.setTargetRp(referenceVm.getResourcePool());
       spec.setVmName(vNode.getVmName());

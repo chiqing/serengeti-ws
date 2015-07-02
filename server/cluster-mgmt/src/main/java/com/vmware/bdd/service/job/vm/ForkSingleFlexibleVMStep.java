@@ -63,7 +63,7 @@ public class ForkSingleFlexibleVMStep extends TrackableTasklet {
                getJobParameters(chunkContext).getString(
                      JobConstants.REFERENCE_VM_ID_JOB_PARAM);
          success = clusteringService.forkOneVM(clusterSpec.getNetworkings(), vNodes,
-               usedIpSets, statusUpdator, forkParent);
+               usedIpSets, statusUpdator, forkParent, referenceVmId);
       } else {
          logger.error("Not instance clone, skip vm creation.");
          success = false;
